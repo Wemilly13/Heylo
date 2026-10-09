@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Heylo — protótipo navegável</title>
+<style>
+:root{--bg:#100b39;--card:#1a1238;--line:#2a1b4e;--pri:#5a189a;--acc:#c77dff;--mut:#e1d9f2;--dim:#8b7fb7;--in:#3d2a6b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#07041f;display:flex;align-items:center;justify-content:center;font:16px Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff}
+.phone{position:relative;width:min(402px,100%);height:min(860px,100dvh,100%);background:var(--bg);overflow:hidden;border-radius:clamp(0px,calc((100vw - 430px)*99),36px);box-shadow:0 20px 80px #000a}
+.scr{position:absolute;inset:0;padding:16px 24px 28px;overflow-y:auto;background:var(--bg);transition:transform .38s cubic-bezier(.3,.8,.3,1),opacity .3s}
+.scr.right{transform:translateX(100%);pointer-events:none}.scr.left{transform:translateX(-28%);opacity:0;pointer-events:none}.scr.hide{opacity:0;pointer-events:none}.scr.cur{transform:none;opacity:1;z-index:2}
+.scr[data-tab]{padding-bottom:110px}
+h1{font-size:28px;margin:8px 0 6px;line-height:1.15}h2{font-size:20px;margin:22px 0 12px;font-weight:500}p{margin:0;color:var(--mut);line-height:1.45}
+.logo{font:italic 800 32px Inter,system-ui;letter-spacing:-1px}.logo s{text-decoration:none;color:var(--acc);font-size:20px;margin-left:4px}
+.row{display:flex;align-items:center;gap:12px}.sp{justify-content:space-between}
+.back{background:none;border:0;color:#fff;font:16px inherit;padding:12px 0;cursor:pointer;display:flex;gap:8px;align-items:center}
+.scr>.back{position:sticky;top:0;z-index:3;background:var(--bg);width:calc(100% + 48px);margin:-16px -24px 0;padding:28px 24px 12px}
+.btn{display:block;width:100%;height:54px;border-radius:12px;background:var(--pri);color:#fff;border:2px solid var(--pri);font:600 16px inherit;margin-top:12px;cursor:pointer;transition:transform .12s,filter .2s}
+.btn:active{transform:scale(.96)}.btn:hover{filter:brightness(1.15)}.btn.o{background:#fff;color:var(--pri)}.btn:disabled{opacity:.4;pointer-events:none}.btn.g{background:none;border-color:var(--in)}
+label{display:block;font-size:14px;font-weight:600;margin:14px 0 8px}
+.in{width:100%;height:54px;background:var(--card);border:1px solid var(--in);border-radius:12px;color:#fff;padding:0 16px;font:16px inherit;outline:0;transition:border .2s,box-shadow .2s}
+.in:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc)33}
+textarea{width:100%;height:112px;background:var(--card);border:1px solid var(--in);border-radius:12px;color:#fff;padding:14px 16px;font:16px inherit;resize:none;outline:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:16px}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:99px;font-style:normal;font-weight:700;flex:none}
+.cc{background:var(--card);border:1px solid var(--pri);border-radius:12px;padding:14px;flex:1;cursor:pointer;transition:transform .15s,background .2s}
+.cc:active{transform:scale(.95)}.cc:hover{background:#241a4d}.cc b{display:block;margin:8px 0 4px;font-size:14px}.cc span{font-size:13px;color:var(--mut)}
+.aff{background:var(--pri);border-radius:10px;padding:10px 12px;font-size:14px;margin:12px 0}
+.chip{display:inline-flex;gap:6px;padding:12px;border-radius:12px;border:1px solid var(--in);background:var(--card);margin:0 6px 8px 0;font-size:14px;cursor:pointer;transition:all .2s;color:#fff}
+.chip.sel{background:var(--pri);border-color:var(--acc)}.chip:active{transform:scale(.94)}
+.act{display:flex;gap:8px}.act button{background:none;border:0;color:var(--mut);font:14px inherit;height:44px;padding:0 10px 0 0;cursor:pointer;display:flex;gap:8px;align-items:center}
+.h{display:inline-block;font-size:20px;transition:color .2s}.liked .h{color:#ff4d8d;animation:pop .4s}
+@keyframes pop{40%{transform:scale(1.6) rotate(-8deg)}}
+.nav{position:absolute;z-index:5;left:0;right:0;bottom:0;display:flex;padding:8px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .35s}
+.nav.on{transform:none}.nav b{flex:1;text-align:center;font-size:12px;padding:8px 0;border-radius:12px;cursor:pointer;color:var(--mut);transition:background .25s}.nav b i{display:block;font-style:normal;font-size:22px}.nav b.act{background:var(--pri);color:#fff}
+.bub{max-width:75%;padding:10px 14px;border-radius:18px;margin:8px 0;font-size:15px;animation:in .3s}.bub small{display:block;font-size:11px;opacity:.7;margin-top:4px}
+.r{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}.s{background:var(--pri);margin-left:auto;border-bottom-right-radius:4px}
+@keyframes in{from{opacity:0;transform:translateY(10px) scale(.96)}}
+.dots{display:inline-flex;gap:5px;background:var(--card);padding:14px;border-radius:18px}.dots i{width:7px;height:7px;border-radius:9px;background:var(--dim);animation:b 1s infinite}.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-5px);background:#fff}}
+.tile{border-radius:20px;display:flex;align-items:flex-end;padding:12px;font-size:13px;position:relative;overflow:hidden}.tile span{background:#0008;padding:6px 12px;border-radius:99px}
+.ctl{display:flex;justify-content:space-between;margin-top:22px}.ctl div{text-align:center;font-size:12px;width:80px;color:var(--mut)}
+.cb{width:64px;height:64px;border-radius:99px;border:0;background:var(--card);font-size:26px;cursor:pointer;margin-bottom:8px;transition:transform .15s,background .2s;color:#fff}.cb:active{transform:scale(.88)}.cb.off{background:#fff;color:#000}.cb.end{background:#e5384f}
+.tg{width:48px;height:28px;border-radius:99px;background:var(--in);position:relative;cursor:pointer;transition:background .25s;flex:none}.tg:after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:99px;background:#fff;transition:transform .25s}.tg.on{background:var(--pri)}.tg.on:after{transform:translateX(20px)}
+.pref{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:background .2s}.pref:hover{background:#241a4d}.pref div{flex:1}.pref small{color:var(--dim);display:block;margin-top:2px}
+.ok{width:80px;height:80px;border-radius:99px;background:var(--pri);display:flex;align-items:center;justify-content:center;font-size:40px;margin:30px auto 18px;animation:okp .6s cubic-bezier(.3,1.6,.5,1)}@keyframes okp{from{transform:scale(0) rotate(-90deg)}}
+.star{position:absolute;border-radius:9px;background:#fff;animation:tw 3s infinite}@keyframes tw{50%{opacity:.2}}
+.hero{position:relative;height:300px;margin:16px 0}.hero .logo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px}
+.toast{position:absolute;left:24px;right:24px;bottom:100px;background:#fff;color:#100b39;padding:14px 16px;border-radius:14px;font-size:14px;font-weight:600;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;z-index:9}.toast.on{opacity:1;transform:none}
+.pulse{width:120px;height:120px;border-radius:99px;margin:70px auto 34px;display:flex;align-items:center;justify-content:center;font-size:44px;background:var(--pri);position:relative}.pulse:before,.pulse:after{content:"";position:absolute;inset:0;border-radius:99px;border:2px solid var(--acc);animation:rad 2s infinite}.pulse:after{animation-delay:1s}@keyframes rad{from{transform:scale(1);opacity:.8}to{transform:scale(2.4);opacity:0}}
+.more{background:none;border:0;color:#fff;font-size:22px;width:44px;height:44px;cursor:pointer;border-radius:12px}.more:active{background:var(--in)}
+.sh{position:absolute;inset:0;z-index:20;background:#000a;opacity:0;pointer-events:none;transition:opacity .25s}.sh.on{opacity:1;pointer-events:auto}.sh>div{position:absolute;left:0;right:0;bottom:0;background:var(--card);border-radius:24px 24px 0 0;padding:20px 24px 30px;transform:translateY(100%);transition:transform .3s cubic-bezier(.3,.8,.3,1)}.sh.on>div{transform:none}
+.opt{padding:16px;border-radius:14px;cursor:pointer;background:var(--bg);margin-top:10px;transition:background .2s}.opt:hover,.opt:active{background:var(--in)}
+.sw{width:44px;height:44px;border-radius:99px;cursor:pointer;border:3px solid transparent;transition:transform .2s}.sw.on{border-color:#fff;transform:scale(1.15)}.sw:active{transform:scale(.9)}
+.err{background:#3b0d1c;border:1px solid #e5384f;border-radius:14px;padding:14px;margin-top:10px;font-size:14px;line-height:1.5;color:#ffd5dc;animation:in .3s}.shake{animation:shk .4s}@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
+</style></head><body>
+<div class="phone" id="app">
+
+<section class="scr cur" id="welcome">
+ <div class="logo" style="font-size:48px;margin-top:20px">heylo<s>✦</s></div>
+ <div class="hero" id="hero"></div>
+ <h1 style="font-size:36px;font-weight:500">Pessoas reais,<br>conversas reais.</h1>
+ <p style="margin-top:12px">Encontre sua turma. Compartilhe interesses e converse por texto ou voz, do seu jeito.</p>
+ <button class="btn" data-go="login" style="margin-top:28px">Entrar</button>
+ <button class="btn o" data-go="signup">Criar minha conta</button>
+ <p style="text-align:center;font-size:13px;margin-top:20px">🛡 Comunidade segura, com regras claras</p>
+</section>
+
+<section class="scr right" id="login">
+ <button class="back" data-back>← Voltar</button>
+ <div class="logo" style="margin-top:14px">heylo<s>✦</s></div>
+ <h1 style="margin-top:24px">Que bom te ver de novo</h1><p>Entre para continuar a conversa com sua turma.</p>
+ <label>E-mail</label><input class="in" value="luana@heylo.app">
+ <label>Senha</label><input class="in" type="password" value="heylo2026">
+ <button class="btn" data-go="home" style="margin-top:28px">Entrar</button>
+ <p style="text-align:center;margin-top:24px;font-size:14px">Ainda não tem conta?</p>
+ <button class="btn o" data-go="signup">Criar minha conta</button>
+</section>
+
+<section class="scr right" id="signup">
+ <button class="back" data-back>← Voltar</button>
+ <h1>Crie seu perfil</h1><p>Leva menos de um minuto.</p>
+ <div class="row" style="margin:20px 0"><span class="av" style="width:80px;height:80px;background:var(--card);border:2px dashed var(--in);font-size:28px">📷</span><div><p style="font-size:13px">Foto de perfil</p><button class="chip" style="margin-top:8px" data-act="toast" data-m="Foto adicionada ✨">Adicionar foto</button></div></div>
+ <label>Nome</label><input class="in" id="sn" value="Luana"><label>E-mail</label><input class="in" value="luana@heylo.app">
+ <label>Senha</label><input class="in" type="password" value="heylo2026">
+ <div class="row" id="tosr" style="margin-top:16px;padding:10px;border-radius:14px;border:1px solid transparent"><div class="tg" id="tos" data-act="tos"></div><p style="font-size:13px">Aceito os termos e a política da comunidade.</p></div><div id="tose" style="display:none"></div>
+ <button class="btn" data-act="signup">Criar conta</button>
+</section>
+
+<section class="scr right" id="home" data-tab>
+ <div class="row sp"><div class="logo">heylo<s>✦</s></div><div class="row" data-go="profile" style="cursor:pointer"><p style="font-size:14px" id="hi">Olá, Luana</p><span id="meAv"></span></div></div>
+ <label style="margin-top:20px">Buscar</label>
+ <input class="in" placeholder="🔍  Pessoas e interesses" data-go="search" readonly style="cursor:pointer">
+ <div class="row" style="margin-top:22px;align-items:stretch">
+  <div class="cc" data-act="match" data-k="text"><span style="font-size:24px">💬</span><b>Chat de texto</b><span>Escreva e se conecte</span></div>
+  <div class="cc" data-act="match" data-k="voice"><span style="font-size:24px">🎙</span><b>Voz</b><span>Fale ao vivo</span></div>
+  <div class="cc" data-act="match" data-k="video"><span style="font-size:24px">🎥</span><b>Chat de vídeo</b><span>Veja sua turma</span></div>
+ </div>
+ <div class="row sp" style="margin:26px 0 14px"><div style="font-size:22px">Posts da sua turma</div><button class="chip" data-go="create" style="margin:0;color:var(--acc);background:none;border:0">＋ Publicar</button></div>
+ <div id="posts"></div>
+</section>
+
+<section class="scr right" id="search" data-tab>
+ <h1>Pesquisar</h1>
+ <label>Pessoas e interesses</label><input class="in" id="q" placeholder="🔍  Digite para filtrar salas">
+ <h2>Categorias</h2><div id="chips"></div>
+ <h2>Salas disponíveis</h2><div id="rooms"></div>
+</section>
+
+<section class="scr right" id="chats" data-tab>
+ <div class="logo">heylo<s>✦</s></div><h1 style="margin-top:20px">Conversas</h1><p>Continue de onde parou.</p>
+ <div id="convs" style="margin:18px 0"></div>
+ <div class="card"><b>Videochamada com Aurora</b><p style="margin:6px 0 12px;font-size:14px">Aurora está disponível agora.</p><button class="btn" style="margin:0" data-go="video">Entrar na chamada</button></div>
+</section>
+
+<section class="scr right" id="profile" data-tab>
+ <div class="row sp"><div class="logo">heylo<s>✦</s></div><button class="chip" data-go="settings" style="margin:0">⚙ Configurações</button></div>
+ <div style="text-align:center;margin-top:24px"><span id="pAv"></span><h1 style="margin-top:14px" id="pn">Luana</h1><p style="font-size:14px;color:var(--dim)" id="ph">@luana · Vitória, ES</p><p style="margin-top:10px">Leitora de sci-fi, apaixonada por música e rabiscos.</p></div>
+ <h2 style="font-size:14px">Interesses</h2><div><span class="chip">📖 Leitura</span><span class="chip">🎵 Música</span><span class="chip">🎨 Arte</span></div>
+ <button class="btn g" data-act="editme">✏ Editar perfil</button>
+ <h2>Suas publicações</h2><div id="mine"></div>
+</section>
+
+<section class="scr right" id="aurora">
+ <button class="back" data-back>← Voltar</button>
+ <div style="text-align:center"><span id="aAv"></span><h1 style="margin-top:14px">Aurora</h1><p style="font-size:14px;color:var(--dim)">@aurora.sounds</p><p style="margin-top:10px">Playlists, vinis e café. Sempre com fone no ouvido 🎧</p></div>
+ <div class="row" style="margin-top:20px"><button class="btn" id="fol" style="margin:0" data-act="follow">Seguir</button><button class="btn o" style="margin:0" data-go="chat" data-name="Aurora">Conversar</button></div>
+ <h2 style="font-size:14px">Interesses em comum</h2><div><span class="chip">🎵 Música</span><span class="chip">📖 Leitura</span></div>
+</section>
+
+<section class="scr right" id="room">
+ <button class="back" data-back>← Salas</button>
+ <div class="card" style="margin-top:8px"><div style="font-size:44px" id="rE">📖</div><h1 id="rN">Clube do Livro</h1><p>Um espaço leve para trocar indicações, debater capítulos e achar sua próxima leitura.</p><div class="aff" style="display:inline-block" id="rI">Leitura</div></div>
+ <div class="card"><b>Regras da sala</b><p style="margin-top:10px">🛡 Respeito sempre</p><p style="margin-top:6px">🛡 Sem spoilers sem aviso</p><p style="margin-top:6px">🛡 Nada de spam</p></div>
+ <div class="row"><span id="p1"></span><span id="p2" style="margin-left:-20px"></span><span id="p3" style="margin-left:-20px"></span><p style="font-size:14px">+128 na sala agora</p></div>
+ <button class="btn" id="enter">Entrar na sala</button>
+</section>
+
+<section class="scr right" id="chat" style="padding:0;display:flex;flex-direction:column">
+ <div class="row" style="padding:16px;border-bottom:1px solid var(--line)"><button class="back" data-back style="padding:4px">←</button><span id="cAv"></span><div style="flex:1"><b id="cN">Aurora</b><p id="cS" style="font-size:12px;color:#7CFFB2">● online agora</p></div><span id="cOpts" class="row" style="gap:6px"></span></div>
+ <div id="msgs" style="flex:1;min-height:0;overflow-y:auto;padding:12px 20px"></div>
+ <div style="display:flex;gap:8px;padding:8px 16px 0;overflow-x:auto;flex:none"><span class="chip" style="white-space:nowrap" data-act="qr" data-t="Oi! 👋">Oi! 👋</span><span class="chip" style="white-space:nowrap" data-act="qr" data-t="Do que você gosta?">Do que você gosta?</span><span class="chip" style="white-space:nowrap" data-act="qr" data-t="Qual sua música favorita?">Música favorita?</span></div><div class="row" style="flex:none;padding:10px 16px 18px;border-top:1px solid var(--line)"><input class="in" id="mi" placeholder="Escreva uma mensagem" style="height:44px;border-radius:22px"><button class="chip" id="snd" style="margin:0;background:var(--pri);height:44px;width:44px;justify-content:center;border-radius:22px" data-act="send">➤</button></div>
+</section>
+
+<section class="scr right" id="video">
+ <button class="back" data-back>← Sair</button>
+ <h1 style="font-size:24px" id="vH">Em chamada com Aurora</h1><p id="tm" style="font-size:14px">00:00</p><button class="chip" id="vNext" data-act="next" style="display:none;margin:8px 0 0">⏭ Próxima pessoa</button>
+ <div class="tile" style="height:330px;margin:16px 0 12px;background:linear-gradient(135deg,#7b2cbf,#240046)"><div id="vBig" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"></div><span id="vTn" style="position:relative">🎤 Aurora</span><div id="pip" style="position:absolute;top:12px;right:12px;width:84px;height:112px;border-radius:14px;background:linear-gradient(135deg,#ff4d8d,#3c096c);display:flex;align-items:flex-end;justify-content:center;padding:8px;font-size:12px;border:2px solid #ffffff44;transition:opacity .3s"><span id="meT" style="padding:4px 8px">🎤 Você</span></div></div>
+ <div class="ctl">
+  <div><button class="cb" data-act="cb" data-a="🎤" data-b="🔇" data-t="meT">🎤</button>Microfone</div>
+  <div><button class="cb" data-act="cb" data-a="🎥" data-b="🚫">🎥</button>Câmera</div>
+  <div><button class="cb" data-act="toast" data-m="Denúncia enviada. Obrigado 💜">⚑</button>Denunciar</div>
+  <div><button class="cb end" data-back>📞</button>Encerrar</div>
+ </div>
+</section>
+
+<section class="scr right" id="create">
+ <button class="back" data-back>← Voltar</button>
+ <h1>Criar post</h1>
+ <div class="row" style="margin:14px 0"><span id="cpAv"></span><div><b id="cpn">Luana</b><p style="font-size:13px">Publicando para sua turma</p></div></div>
+ <label>O que você quer compartilhar?</label><textarea id="pt" maxlength="140" placeholder="Conte algo para sua turma…"></textarea>
+ <p style="text-align:right;font-size:12px;color:var(--dim);margin-top:4px" id="cnt">0/140</p>
+ <label>Interesse</label><div id="pc"><span class="chip sel" data-i="Música">🎵 Música</span><span class="chip" data-i="Leitura">📖 Leitura</span><span class="chip" data-i="Jogos">🎮 Jogos</span><span class="chip" data-i="Arte">🎨 Arte</span></div>
+ <button class="btn" id="pub" disabled data-act="publish">Publicar</button>
+</section>
+
+<section class="scr right" id="done">
+ <button class="back" data-go="home">← Início</button><div class="logo" style="text-align:right;margin-top:14px">heylo<s>✦</s></div>
+ <div class="ok">✓</div><h1 style="text-align:center">Publicação concluída</h1><p style="text-align:center">Sua turma já pode ver, curtir e comentar.</p>
+ <div class="card" style="margin-top:24px" id="prev"></div>
+ <button class="btn" data-go="home">Ver no feed</button><button class="btn g" data-go="create" data-back>Criar outro post</button>
+</section>
+
+<section class="scr right" id="comments">
+ <button class="back" data-back>← Voltar</button>
+ <div class="card" style="margin-top:6px"><div class="row"><span id="cmAv"></span><div><b>Aurora</b><p style="font-size:13px">Música · há 12 min</p></div></div><p style="color:#fff;margin-top:12px">Qual música n sai da sua cabeça, vey? A minha playlist tem cheiro de lana del rey</p></div>
+ <h2 style="font-size:18px">Comentários</h2><div id="cmts"></div>
+ <label>Adicionar comentário</label><input class="in" id="ci" placeholder="Escreva algo legal…">
+ <button class="btn" data-act="comment">➤ Comentar</button>
+</section>
+
+<section class="scr right" id="settings">
+ <button class="back" data-back>← Voltar</button>
+ <h1>Configurações</h1><p style="margin-bottom:18px">Ajuste sua conta do jeito que quiser.</p>
+ <div class="pref" data-act="editme"><span>👤</span><div>Conta<small>Nome, e-mail e foto</small></div>›</div>
+ <div class="pref" data-act="toast" data-m="Privacidade"><span>🔒</span><div>Privacidade<small>Quem pode falar com você</small></div>›</div>
+ <div class="pref" data-act="toast" data-m="Notificações"><span>🔔</span><div>Notificações<small>Avisos de posts e chats</small></div>›</div>
+ <div class="pref" data-act="toast" data-m="Segurança"><span>🛡</span><div>Segurança<small>Denúncias e bloqueios</small></div>›</div>
+ <div class="card" style="margin-top:18px"><b>🎨 Aparência</b><p style="font-size:13px;margin:4px 0 14px">Escolha a cor do seu Heylo.</p><div class="row" id="sws"></div></div>
+ <button class="btn g" data-go="welcome" data-reset>⎋ Sair da conta</button>
+</section>
+
+<section class="scr right" id="match"><div style="text-align:center"><div class="pulse" id="mE">💬</div><h1 id="mT">Procurando alguém…</h1><p>Vamos te conectar com uma pessoa nova que curte coisas parecidas com você.</p></div><button class="btn g" style="margin-top:40px" data-act="cancel">Cancelar</button></section>
+<section class="scr right" id="voice"><button class="back" data-back>← Voltar</button><div style="text-align:center;margin-top:20px"><span id="vAv"></span><h1 style="margin-top:16px" id="vN">Pessoa</h1><p id="vI"></p><p id="vt" style="margin-top:6px;font-size:14px">00:00</p></div><div class="ctl" style="margin-top:60px"><div><button class="cb" data-act="cb" data-a="🎤" data-b="🔇">🎤</button>Microfone</div><div><button class="cb" data-act="cb" data-a="🔊" data-b="🔈">🔊</button>Alto-falante</div><div><button class="cb" data-act="next">⏭</button>Próxima</div><div><button class="cb end" data-act="leave">📞</button>Sair</div></div></section>
+<nav class="nav"><b data-go="home"><i>🏠</i>Início</b><b data-go="search"><i>🔍</i>Pesquisar</b><b data-go="chats"><i>💬</i>Conversas</b><b data-go="profile"><i>👤</i>Perfil</b></nav>
+<div class="sh" id="sh"><div id="shc"></div></div><div class="toast" id="toast"></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const hs=n=>[...n].reduce((a,c)=>a+c.charCodeAt(0)*7,0)%360;
+const av=(n,s=44)=>`<i class="av" style="width:${s}px;height:${s}px;font-size:${s*.42}px;background:linear-gradient(135deg,hsl(${hs(n)} 70% 55%),hsl(${(hs(n)+60)%360} 70% 32%))">${n[0]}</i>`;
+const fill=(id,n,s)=>$('#'+id).innerHTML=av(n,s);
+fill('meAv','Luana',44);fill('pAv','Luana',104);fill('aAv','Aurora',104);fill('cpAv','Luana',44);fill('cmAv','Aurora',44);
+fill('p1','Ana',44);fill('p2','Caio',44);fill('p3','Bia',44);
+for(let i=0;i<26;i++){const s=document.createElement('i');s.className='star';const z=2+i%3;s.style.cssText=`width:${z}px;height:${z}px;left:${(i*37)%98}%;top:${(i*53)%96}%;animation-delay:${i%5*.5}s`;$('#hero').appendChild(s)}
+
+let me='Luana';let cur='welcome',hist=['welcome'],chatName='Aurora',tmr=null;
+function go(id,mode){if(id===cur)return;const a=$('#'+cur),b=$('#'+id),tab=b.dataset.tab!==undefined;mode=mode||(tab?'tab':'push');
+ if(mode==='tab'||mode==='reset'){b.style.transition='none';b.className='scr hide';b.offsetWidth;b.style.transition='';a.className='scr hide';hist=[id]}
+ else if(mode==='back'){a.className='scr right';const k=hist.lastIndexOf(id);if(k>=0)hist.length=k+1;else hist.push(id)}
+ else{a.className='scr left';hist.push(id)}
+ b.className='scr cur';cur=id;
+ $('.nav').classList.toggle('on',tab);$$('.nav b').forEach(x=>x.classList.toggle('act',x.dataset.go===id));enter(id)}
+function back(){if(hist.length<2)return;hist.pop();go(hist[hist.length-1],'back')}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t.k);t.k=setTimeout(()=>t.classList.remove('on'),1800)}
+
+let posts=[
+ {n:'Aurora',i:'Música',t:'há 12 min',x:'Qual música n sai da sua cabeça, vey? A minha playlist tem cheiro de lana del rey',e:'🎵',l:24,c:6},
+ {n:'Caio',i:'Leitura',t:'há 40 min',x:'Terminei Duna ontem e ainda estou processando o final. Alguém para trocar teorias?',e:'📖',l:18,c:9},
+ {n:'Bia',i:'Jogos',t:'há 1 h',x:'Procuro dupla para jogar co-op hoje à noite. Quem topa uma partida tranquila?',e:'🎮',l:31,c:12}];
+const mineP=[{n:'Luana',i:'Leitura',t:'há 2 dias',x:'Indicação do dia: qualquer sci-fi com bibliotecas gigantes. Me ajudem!',e:'📖',l:12,c:3}];
+function card(p,k,j){return `<div class="card"><div class="row sp"><div class="row" ${p.n==='Aurora'?'data-go="aurora" style="cursor:pointer"':''}>${av(p.n)}<div><b>${p.n}</b><p style="font-size:13px">${p.i} · ${p.t}</p></div></div><button class="more" data-act="more" data-i="${j}">⋯</button></div>
+<p style="color:#fff;margin-top:12px">${p.x}</p>${k?`<div class="aff">${p.e} Vocês têm ${p.i.toLowerCase()} em comum</div>`:''}
+<div class="act" style="margin-top:${k?0:10}px"><button data-act="like" data-i="${j}" data-k="${k}"><span class="h">♡</span><span class="n">${p.l} curtidas</span></button><button ${p.n==='Aurora'?'data-go="comments"':'data-act="toast" data-m="Comentários deste post em breve"'}>💬 ${p.c} comentários</button></div></div>`}
+const renderPosts=()=>{$('#posts').innerHTML=posts.map((p,j)=>p.hidden?'':card(p,p.n!==me,j)).join('');$('#mine').innerHTML=mineP[0].hidden?'<p style="font-size:14px">Nada por aqui ainda.</p>':card(mineP[0],0,'m0')};
+renderPosts();
+
+const cats=['Todos','Leitura','Jogos','Arte','Música','Tecnologia'];let cat='Todos';
+const rooms=[{n:'Clube do Livro',i:'Leitura',e:'📖',p:'128 pessoas'},{n:'Tarde de Jogos',i:'Jogos',e:'🎮',p:'86 pessoas'},{n:'Ateliê Aberto',i:'Arte',e:'🎨',p:'54 pessoas'},{n:'Playlist Coletiva',i:'Música',e:'🎵',p:'210 pessoas'},{n:'Papo de Tech',i:'Tecnologia',e:'💻',p:'73 pessoas'}];
+function renderRooms(){$('#chips').innerHTML=cats.map(c=>`<span class="chip ${c===cat?'sel':''}" data-act="cat" data-c="${c}">${c}</span>`).join('');
+ const q=$('#q').value.toLowerCase();const l=rooms.filter(r=>(cat==='Todos'||r.i===cat)&&(r.n+r.i).toLowerCase().includes(q));
+ $('#rooms').innerHTML=l.length?l.map((r,j)=>`<div class="card"><div class="row"><span style="font-size:30px">${r.e}</span><div style="flex:1"><b>${r.n}</b><p style="font-size:13px">${r.i} · ${r.p}</p></div><button class="chip" style="margin:0;background:var(--pri)" data-go="room" data-room="${rooms.indexOf(r)}">Entrar</button></div></div>`).join(''):'<p>Nenhuma sala encontrada 🌌</p>'}
+$('#q').oninput=renderRooms;renderRooms();
+$('#convs').innerHTML=[['Aurora','Bora trocar playlists? 🎶','2 min',2],['Caio','Duna é muito bom, né?','1 h',1],['Bia','Partida hoje às 21h?','ontem',0],['Clube do Livro','Mari: terminei o capítulo 5!','ontem',0]].map(c=>`<div class="row" style="padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer" data-go="chat" data-name="${c[0]}">${av(c[0],52)}<div style="flex:1"><b>${c[0]}</b><p style="font-size:14px">${c[1]}</p></div><div style="text-align:right;font-size:12px;color:var(--dim)">${c[2]}${c[3]?`<br><span class="av" style="width:22px;height:22px;background:var(--pri);color:#fff;font-size:12px;margin-top:4px">${c[3]}</span>`:''}</div></div>`).join('');
+
+let msgs=[{r:1,x:'Oi! Vi que você também curte música 🎵',h:'14:02'},{s:1,x:'Oi! Amo demais, qual banda você mais ouve?',h:'14:03'}];
+const replies=['Ultimamente só Lana del Rey, haha 😄','Também! Vamos montar uma playlist juntas?','Boa! Me manda a sua depois 🎧'];let ri=0;
+function renderChat(typing){$('#msgs').innerHTML=msgs.map(m=>`<div class="bub ${m.r?'r':'s'}">${m.x}<small>${m.h}${m.s?' ✓✓':''}</small></div>`).join('')+(typing?'<div class="row" style="gap:10px;margin-top:6px"><div class="dots"><i></i><i></i><i></i></div><small style="color:var(--dim)">'+chatName+' está digitando…</small></div>':'');const e=$('#msgs');e.scrollTop=e.scrollHeight}
+const now=()=>new Date().toTimeString().slice(0,5);
+function send(){const i=$('#mi'),v=i.value.trim();if(!v)return;msgs.push({s:1,x:v.replace(/</g,'&lt;'),h:now()});i.value='';renderChat(true);$('#cS').textContent='✍ digitando…';
+ setTimeout(()=>{msgs.push({r:1,x:smart(v),h:now()});renderChat();$('#cS').textContent=st?'● pessoa nova':'● online agora'},2400)}
+$('#mi').onkeydown=e=>e.key==='Enter'&&send();
+let cm=[['Caio','Amei a ideia! Lana nunca erra 💜','5 min'],['Bia','Tenho uma playlist perfeita pra você','8 min']];
+function renderCm(){$('#cmts').innerHTML=cm.map(c=>`<div class="row" style="align-items:flex-start;margin-bottom:16px;animation:in .3s">${av(c[0],36)}<div style="flex:1"><div class="row sp"><b style="font-size:14px">${c[0]}</b><small style="color:var(--dim)">${c[2]}</small></div><p style="font-size:15px;color:#fff">${c[1]}</p></div></div>`).join('')}
+let sel='Música';
+$('#pt').oninput=e=>{$('#cnt').textContent=e.target.value.length+'/140';$('#pub').disabled=!e.target.value.trim()};
+$('#pc').onclick=e=>{const c=e.target.closest('.chip');if(!c)return;$$('#pc .chip').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');sel=c.dataset.i};
+
+function enter(id){
+ if(id==='chat'){if(!st)msgs=convMsgs[chatName]||(convMsgs[chatName]=chatName==='Aurora'?[{r:1,x:'Oi! Vi que você também curte música 🎵',h:'14:02'},{s:1,x:'Oi! Amo demais, qual banda você mais ouve?',h:'14:03'}]:[{r:1,x:'Oi! Que bom te ver por aqui 😊',h:now()}]);$('#cN').textContent=chatName;fill('cAv',chatName,40);$('#cS').textContent=st?'● pessoa nova':'● online agora';$('#cOpts').innerHTML=st?'<button class="chip" style="margin:0" data-act="next">⏭ Próxima</button><button class="chip" style="margin:0;background:#e5384f" data-act="leave">✕ Sair</button>':'<button class="chip" style="margin:0" data-act="toast" data-m="Ligando… 📞">📞</button><button class="chip" style="margin:0" data-go="video">🎥</button>';renderChat()}
+ if(id==='comments')renderCm();
+ if(id==='room'){const r=rooms[$('#room').dataset.r||0];$('#rE').textContent=r.e;$('#rN').textContent=r.n;$('#rI').textContent=r.i}
+ clearInterval(tmr);if(id==='video'){$('#vTn').textContent='🎤 '+(st?st.n:'Aurora');fill('vBig',st?st.n:'Aurora',120);$('#vH').textContent=st?'Em chamada com '+st.n:'Em chamada com Aurora';$('#vNext').style.display=st?'inline-flex':'none'}
+ if(id==='voice'){fill('vAv',st.n,120);$('#vN').textContent=st.n;$('#vI').textContent=st.e+' '+st.i}
+ if(id==='video'||id==='voice'){let s=0;const el=$(id==='video'?'#tm':'#vt');el.textContent='00:00';tmr=setInterval(()=>{s++;el.textContent=String(s/60|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000)}
+}
+let convMsgs={},st=null,mk='text',mto=null,last='';
+const pool=[{n:'Marina',i:'Música',e:'🎵'},{n:'Thiago',i:'Jogos',e:'🎮'},{n:'Helena',i:'Leitura',e:'📖'},{n:'Rafa',i:'Arte',e:'🎨'},{n:'Dani',i:'Tecnologia',e:'💻'},{n:'Léo',i:'Música',e:'🎵'}];
+const greet=['Oi! Tudo bem? Vi que a gente curte coisas parecidas 😄','E aí! Primeira vez por aqui?','Olá! Que legal te encontrar, bora conversar?'];
+function startMatch(k){mk=k;$('#mE').textContent={text:'💬',voice:'🎙',video:'🎥'}[k];$('#mT').textContent=k==='text'?'Procurando alguém para conversar…':k==='voice'?'Procurando alguém para falar…':'Procurando alguém para a chamada…';go('match');clearTimeout(mto);
+ mto=setTimeout(()=>{if(cur!=='match')return;let p;do{p=pool[Math.random()*pool.length|0]}while(p.n===last);last=p.n;st=p;hist.pop();
+  if(k==='text'){chatName=p.n;msgs=[{r:1,x:greet[Math.random()*3|0],h:now()}];go('chat')}else go(k);toast('Conectado com '+p.n+' · '+p.e+' '+p.i)},2200)}
+const themes=[['Roxo',255],['Azul',215],['Verde',150],['Rosa',320],['Laranja',20]];
+function setTheme(i){const h=themes[i][1],z=document.documentElement.style;const m={'--bg':`hsl(${h} 68% 13%)`,'--card':`hsl(${h+4} 52% 16%)`,'--line':`hsl(${h+8} 48% 22%)`,'--in':`hsl(${h+8} 43% 30%)`,'--pri':`hsl(${h+19} 72% 38%)`,'--acc':`hsl(${h+22} 100% 76%)`,'--dim':`hsl(${h+10} 30% 62%)`};for(const k in m)i?z.setProperty(k,m[k]):z.removeProperty(k);$$('.sw').forEach((x,k)=>x.classList.toggle('on',k===i))}
+function renderSws(){$('#sws').innerHTML=themes.map((t,i)=>`<div class="sw ${i?'':'on'}" data-act="theme" data-i="${i}" title="${t[0]}" style="background:hsl(${t[1]+19} 72% 45%)"></div>`).join('')}
+function applyMe(){fill('meAv',me,44);fill('pAv',me,104);fill('cpAv',me,44);$('#hi').textContent='Olá, '+me;$('#pn').textContent=me;$('#ph').textContent='@'+me.toLowerCase().replace(/\s+/g,'')+' · Vitória, ES';$('#cpn').textContent=me}
+function setMe(v){const o=me;me=v;posts.concat(mineP).forEach(p=>{if(p.n===o)p.n=v});cm.forEach(c=>{if(c[0]===o)c[0]=v});applyMe();renderPosts()}
+const sheet=h=>{$('#shc').innerHTML=h;$('#sh').classList.add('on')},closeSh=()=>$('#sh').classList.remove('on');
+let pidx=0;const getP=i=>i==='m0'?mineP[0]:posts[i];
+function smart(v){const t=v.toLowerCase(),L=[[/^(oi|olá|ola|e aí|eai|hey|opa)/,'Oi! Tudo bem por aí? 😄'],[/m[uú]sica|banda|playlist|cantor|show/,'Ando ouvindo muita coisa nova. Me indica uma banda? 🎧'],[/jog|game|play/,'Adoro jogar! Qual seu favorito do momento? 🎮'],[/livro|ler|leitura|filme|série/,'Boa! Procuro algo novo para ler, tem dica? 📖'],[/nome|quem é voc/,'Pode me chamar de '+chatName+'! E você?'],[/tchau|até|flw|vou nessa/,'Foi ótimo conversar! Até a próxima 👋'],[/\?/,'Boa pergunta! Me conta o que você acha primeiro 😄']];for(const[x,a]of L)if(x.test(t))return a;return replies[ri++%3]}
+const A={
+ more:e=>{pidx=e.dataset.i;sheet('<b>Opções do post</b><div class="opt" data-act="hide">🙈 Ocultar este post</div><div class="opt" data-act="rep1">⚑ Denunciar</div><div class="opt" data-act="shx" style="text-align:center;color:var(--dim)">Cancelar</div>')},
+ shx:closeSh,
+ hide:()=>{getP(pidx).hidden=1;closeSh();renderPosts();toast('Post oculto. Você verá menos posts assim.')},
+ rep1:()=>sheet('<b>Por que você está denunciando?</b>'+['Spam','Assédio ou ofensa','Conteúdo impróprio','Outro motivo'].map(x=>`<div class="opt" data-act="rep" data-r="${x}">${x}</div>`).join('')),
+ rep:e=>{getP(pidx).hidden=1;closeSh();renderPosts();toast('Denúncia enviada ('+e.dataset.r+'). Obrigado por cuidar da comunidade 💜')},
+ editme:()=>sheet(`<b>Editar perfil</b><label>Nome</label><input class="in" id="nn" value="${me}" maxlength="20"><button class="btn" data-act="saveme">Salvar</button><button class="btn g" data-act="shx">Cancelar</button>`),
+ saveme:()=>{const v=$('#nn').value.trim().replace(/</g,'');if(!v)return toast('O nome não pode ficar vazio');setMe(v);closeSh();toast('Nome atualizado ✨')},
+ theme:e=>{setTheme(+e.dataset.i);toast('Cor '+themes[e.dataset.i][0]+' aplicada ✨')},
+ qr:e=>{$('#mi').value=e.dataset.t;send()},
+ tos:e=>{const on=e.classList.toggle('on');if(on){$('#tose').style.display='none';$('#tosr').style.borderColor='transparent'}},
+ signup:()=>{const n=$('#sn').value.trim().replace(/</g,'');
+  if(!$('#tos').classList.contains('on')){const r=$('#tosr'),b=$('#tose');r.style.borderColor='#e5384f';r.classList.remove('shake');void r.offsetWidth;r.classList.add('shake');b.style.display='block';b.className='err';b.innerHTML='<b>⚠ Não foi possível criar sua conta</b><br>Você precisa aceitar os termos e a política da comunidade para entrar. No Heylo você conversa com pessoas que ainda não conhece, e essas regras (respeito, nada de spam, assédio ou conteúdo impróprio) protegem você e todo mundo. Marque a caixa acima para continuar.';b.scrollIntoView({behavior:'smooth',block:'center'});return}
+  if(!n)return toast('Digite seu nome para continuar');setMe(n);go('home')},
+ match:e=>startMatch(e.dataset.k),
+ cancel:()=>{clearTimeout(mto);back()},
+ next:()=>{hist.length=Math.max(1,hist.indexOf('home')+1);startMatch(mk)},
+ leave:()=>{clearInterval(tmr);st=null;go('home','back');toast('Você saiu da conversa')},
+ toast:e=>toast(e.dataset.m),
+ tg:e=>e.classList.toggle('on'),
+ like:e=>{const li=e.dataset.i,p=li==='m0'?mineP[0]:posts[li];const on=e.classList.toggle('liked');p.l+=on?1:-1;e.querySelector('.h').textContent=on?'♥':'♡';e.querySelector('.n').textContent=p.l+' curtidas'},
+ cat:e=>{cat=e.dataset.c;renderRooms()},
+ follow:e=>{const on=e.classList.toggle('o');e.textContent=on?'✓ Seguindo':'Seguir';if(on)toast('Você agora segue Aurora 💜')},
+ send,
+ cb:e=>{const off=e.classList.toggle('off');e.textContent=off?e.dataset.b:e.dataset.a;if(e.dataset.a==='🎥')$('#pip').style.opacity=off?.25:1;if(e.dataset.t)$('#meT').textContent=(off?'🔇':'🎤')+' Você'},
+ comment:()=>{const i=$('#ci'),v=i.value.trim();if(!v)return toast('Escreva algo antes de comentar');cm.push([me,v.replace(/</g,'&lt;'),'agora']);i.value='';renderCm();toast('Comentário enviado ✨')},
+ publish:()=>{const v=$('#pt').value.trim();if(!v)return;const p={n:me,i:sel,t:'agora',x:v.replace(/</g,'&lt;'),e:'✦',l:0,c:0};posts.unshift(p);mineP.unshift(p);renderPosts();$('#prev').innerHTML=card(p,0,'m0').replace(/<div class="card">|<\/div>$/g,'');$('#pt').value='';$('#cnt').textContent='0/140';$('#pub').disabled=true;go('done')}
+};
+document.addEventListener('click',e=>{if(e.target.id==='sh'){closeSh();return}
+ const a=e.target.closest('[data-act]');if(a){A[a.dataset.act](a);return}
+ const b=e.target.closest('[data-back]');if(b&&!e.target.closest('[data-go]')){back();return}
+ const g=e.target.closest('[data-go]');if(!g)return;
+ if(g.dataset.go==='video'||g.dataset.go==='chat')st=null;if(g.dataset.name)chatName=g.dataset.name;
+ if(g.dataset.room!==undefined)$('#room').dataset.r=g.dataset.room;
+ if(g.dataset.back!==undefined){go(g.dataset.go,'back');return}
+ if(g.dataset.reset!==undefined){go(g.dataset.go,'reset');return}
+ go(g.dataset.go)});
+renderSws();$('#enter').onclick=()=>{chatName=rooms[$('#room').dataset.r||0].n;toast('Você entrou em '+chatName+' 🎉');go('chat')};
+</script></body></html>
